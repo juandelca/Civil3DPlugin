@@ -1,0 +1,39 @@
+name: CI Build y Artefacto .NET (Listo para Civil 3D)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch: 
+
+jobs:
+  build-and-upload:
+    # Se usa Windows porque Civil 3D es una aplicación de Windows
+    runs-on: windows-latest 
+
+    steps:
+    - name: ⬇️ Checkout del Código
+      uses: actions/checkout@v4
+
+    - name: ⚙️ Configurar .NET SDK
+      # Necesitas el SDK moderno (8.0.x) para ejecutar los comandos 'dotnet restore' y 'dotnet build'
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x' 
+
+    - name: 📦 Restaurar Dependencias (dotnet restore)
+      # Este paso encuentra las referencias en 'lib\' y crea el archivo 'project.assets.json'
+      run: dotnet restore ExportCivil3DTable/ExportCivil3DTable.csproj
+      
+    - name: 🏗️ Compilar Proyecto (Modo Release)
+      # Compila la DLL usando las referencias de la carpeta 'lib\'
+      run: dotnet build ExportCivil3DTable/ExportCivil3DTable.csproj --configuration Release
+
+    - name: 📦 Subir Artefacto (DLL)
+      uses: actions/upload-artifact@v4
+      with:
+        name: ExportCivil3DTable_DLL
+        # 🚨 RUTA CORRECTA 🚨: Proyecto/bin/Configuracion/TargetFramework (net48)/Nombre.dll
+        path: ExportCivil3DTable/bin/Release/net48/ExportCivil3DTable.dll
+        retention-days: 5
