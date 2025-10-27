@@ -1,0 +1,38 @@
+name: Compilar Civil 3D Plugin
+
+on:
+  # Dispara el flujo de trabajo en cada push (subida) o pull request a la rama principal
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  
+  # Permite ejecutar el flujo de trabajo manualmente desde la pestaña "Actions" de GitHub
+  workflow_dispatch:
+
+jobs:
+  build:
+    # Es crucial usar un runner de Windows, ya que las referencias de Civil 3D son de Windows.
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout del código
+      uses: actions/checkout@v4
+      
+    # Esta acción configura el entorno de Visual Studio que incluye msbuild.
+    - name: Configurar Entorno de MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+
+    # Compila el proyecto usando msbuild. 
+    # Asegúrate de que la ruta y el nombre del .csproj sean correctos.
+    - name: Compilar proyecto
+      run: msbuild ExportCivil3DTable/ExportCivil3DTable.csproj /p:Configuration=Release
+      
+    # Empaqueta la DLL compilada para descargarla. 
+    # La ruta puede variar; revisa tu .csproj para la ruta de salida.
+    - name: Subir el artefacto compilado (DLL)
+      uses: actions/upload-artifact@v4
+      with:
+        name: ExportCivil3DTable_DLL
+        # Ajusta esta ruta si tu .csproj la cambia (ej: .../bin/Release/)
+        path: ExportCivil3DTable/bin/Release/ExportCivil3DTable.dll
