@@ -1,38 +1,39 @@
-name: CI Build y Artefacto .NET
+name: CI Build y Artefacto .NET (Corregido)
 
 on:
   push:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
-  # Esto permite ejecutar el flujo manualmente desde la interfaz de GitHub
   workflow_dispatch: 
 
 jobs:
   build-and-upload:
-    runs-on: ubuntu-latest # Puedes usar windows-latest si tu plugin lo requiere, pero ubuntu-latest es más rápido/barato.
+    runs-on: ubuntu-latest
 
     steps:
     - name: ⬇️ Checkout del Código
       uses: actions/checkout@v4
 
     - name: ⚙️ Configurar .NET SDK
-      # Instala el SDK en el servidor de GitHub (NO en tu PC)
       uses: actions/setup-dotnet@v4
       with:
-        # Importante: debe coincidir con <TargetFramework> (net8.0)
         dotnet-version: '8.0.x' 
 
-    - name: 🏗️ Compilar Proyecto (Modo Release)
-      # Compila el proyecto y genera la DLL en el directorio bin/Release/net8.0/
-      run: dotnet build ExportCivil3DTable/ExportCivil3DTable.csproj --configuration Release --no-restore
+    # 🚨 PASO CORREGIDO 1: Restaurar las dependencias (NuGet) 🚨
+    # Este paso crea el archivo project.assets.json que falta
+    - name: 📦 Restaurar Dependencias (dotnet restore)
+      # Nota: el comando 'dotnet restore' debe apuntar al archivo .csproj
+      run: dotnet restore ExportCivil3DTable/ExportCivil3DTable.csproj
       
+    - name: 🏗️ Compilar Proyecto (Modo Release)
+      # Ahora el build puede proceder porque el archivo de assets existe.
+      run: dotnet build ExportCivil3DTable/ExportCivil3DTable.csproj --configuration Release
+
     - name: 📦 Subir Artefacto (DLL)
       uses: actions/upload-artifact@v4
       with:
         name: ExportCivil3DTable_DLL
-        # 🚨 LA RUTA CORREGIDA 🚨
-        # Proyecto/bin/Configuracion/TargetFramework/Nombre.dll
+        # Ruta de artefacto basada en TargetFramework net8.0
         path: ExportCivil3DTable/bin/Release/net8.0/ExportCivil3DTable.dll
-        # Conservar el artefacto por 5 días.
         retention-days: 5
