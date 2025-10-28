@@ -1,4 +1,4 @@
-name: CI Build y Artefacto .NET (Civil 3D)
+name: CI Build y Artefacto .NET (Listo para Civil 3D)
 
 on:
   push:
@@ -15,33 +15,26 @@ jobs:
     - name: ⬇️ Checkout del Código
       uses: actions/checkout@v4
 
-    # --- PASO DE DEPURACIÓN AÑADIDO ---
-    # Este paso nos mostrará la estructura de archivos exacta que ve GitHub
-    - name: '[DEBUG] Listar archivos'
-      run: |
-        echo "Listando archivos en el directorio de trabajo:"
-        dir
-        echo "Listando archivos dentro de ExportCivil3DTable:"
-        dir ExportCivil3DTable
-      shell: cmd # Usamos cmd para el comando 'dir'
-
     - name: ⚙️ Configurar .NET SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x' 
 
     - name: 📦 Restaurar Dependencias (dotnet restore)
-      # 🚨 RUTA CORREGIDA 🚨: Apuntamos solo a la CARPETA del proyecto
-      run: dotnet restore ExportCivil3DTable/
+      # Este paso descarga EPPlus en el servidor de GitHub
+      run: dotnet restore ExportCivil3DTable/ExportCivil3DTable.csproj
       
     - name: 🏗️ Compilar Proyecto (Modo Release)
-      # 🚨 RUTA CORREGIDA 🚨: Apuntamos solo a la CARPETA del proyecto
-      run: dotnet build ExportCivil3DTable/ --configuration Release
+      run: dotnet build ExportCivil3DTable/ExportCivil3DTable.csproj --configuration Release
 
-    - name: 📦 Subir Artefacto (DLL)
+    - name: 📦 Subir Artefacto (DLL y Dependencias)
       uses: actions/upload-artifact@v4
       with:
-        name: ExportCivil3DTable_DLL
-        # Esta ruta es correcta si el .csproj está bien
-        path: ExportCivil3DTable/bin/Release/net48/ExportCivil3DTable.dll
+        name: ExportCivil3DTable_Release
+        
+        # 🎯 LA CORRECCIÓN CLAVE:
+        # Ya no subimos solo la DLL, sino TODA la carpeta de salida
+        # que contiene tu DLL y sus dependencias (EPPlus.dll).
+        path: ExportCivil3DTable/bin/Release/net48/
+        
         retention-days: 5
