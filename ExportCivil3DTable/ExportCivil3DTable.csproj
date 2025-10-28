@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <OutputType>Library</OutputType>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>ExportCivil3DTable</AssemblyName>
     <StartAction>Program</StartAction> 
@@ -30,3 +29,4 @@
   </ItemGroup>
 
 </Project>
+
