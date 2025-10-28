@@ -1,0 +1,47 @@
+name: CI Build y Artefacto .NET (Civil 3D)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch: 
+
+jobs:
+  build-and-upload:
+    runs-on: windows-latest 
+
+    steps:
+    - name: ⬇️ Checkout del Código
+      uses: actions/checkout@v4
+
+    # --- PASO DE DEPURACIÓN AÑADIDO ---
+    # Este paso nos mostrará la estructura de archivos exacta que ve GitHub
+    - name: '[DEBUG] Listar archivos'
+      run: |
+        echo "Listando archivos en el directorio de trabajo:"
+        dir
+        echo "Listando archivos dentro de ExportCivil3DTable:"
+        dir ExportCivil3DTable
+      shell: cmd # Usamos cmd para el comando 'dir'
+
+    - name: ⚙️ Configurar .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x' 
+
+    - name: 📦 Restaurar Dependencias (dotnet restore)
+      # 🚨 RUTA CORREGIDA 🚨: Apuntamos solo a la CARPETA del proyecto
+      run: dotnet restore ExportCivil3DTable/
+      
+    - name: 🏗️ Compilar Proyecto (Modo Release)
+      # 🚨 RUTA CORREGIDA 🚨: Apuntamos solo a la CARPETA del proyecto
+      run: dotnet build ExportCivil3DTable/ --configuration Release
+
+    - name: 📦 Subir Artefacto (DLL)
+      uses: actions/upload-artifact@v4
+      with:
+        name: ExportCivil3DTable_DLL
+        # Esta ruta es correcta si el .csproj está bien
+        path: ExportCivil3DTable/bin/Release/net48/ExportCivil3DTable.dll
+        retention-days: 5
