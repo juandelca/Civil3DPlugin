@@ -2,24 +2,25 @@
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-
     <ImplicitUsings>disable</ImplicitUsings>
-
     <LangVersion>7.3</LangVersion>
-
     <Private>False</Private>
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="AeccDbMgd">
-      <HintPath>lib\AeccDbMgd.dll</HintPath>
-    </Reference>
     <Reference Include="accoremgd">
       <HintPath>lib\accoremgd.dll</HintPath>
     </Reference>
     <Reference Include="acmgd">
       <HintPath>lib\acmgd.dll</HintPath>
     </Reference>
-    </ItemGroup>
+    <Reference Include="AeccDbMgd">
+      <HintPath>lib\AeccDbMgd.dll</HintPath>
+    </Reference>
+    
+    <Reference Include="AcDbMgd">
+      <HintPath>lib\acdbmgd.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
 </Project>
